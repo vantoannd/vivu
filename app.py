@@ -4,6 +4,7 @@ import psycopg2
 from geopy.distance import geodesic
 import config
 import bcrypt
+import os
 
 app = Flask(__name__)
 UPLOAD_FOLDER = os.path.join(os.getcwd(), 'uploads')
