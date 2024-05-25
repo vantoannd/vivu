@@ -1,0 +1,103 @@
+.btn-add_location{
+    background-color: rgb(255, 255, 255);
+    border: 1px solid #c0c0c0;
+    border-radius: 50%;
+    padding: 5px 15px;
+    font-size: 35px;
+    position: absolute;
+    bottom: 20px;
+    right: -90px;
+    z-index: 2;
+    color: #9fc95c;
+}
+
+.leaflet-control-attribution.leaflet-control {
+    display: none;
+}
+
+.leaflet-control-zoom.leaflet-bar.leaflet-control {
+    border: none;
+    box-shadow: 0px 0px 5px 2px #ccc;
+    border-radius: 8px;
+    top: 130px;
+    margin-left: 20px;
+}
+
+a.leaflet-control-zoom-in {
+    border-radius: 7px 7px 0 0 !important;
+}
+
+a.leaflet-control-zoom-out {
+    border-radius: 0 0 7px 7px !important;
+}
+
+.map{
+    position: relative;
+}
+
+.location-user{
+    background-color: #fff;
+    border: none;
+    box-shadow: 0px 0px 5px 2px #ccc;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    position: absolute;
+    z-index: 2;
+    top: 100px;
+    left: 20px;
+
+}
+
+
+
+.leaflet-pane{
+    z-index: 0 !important;
+}
+
+.form-input{
+    position: absolute;
+    display: flex;
+    top: 20px;
+    left: 20px;
+    background-color: #fff;
+    text-align: center;
+    padding: 5px 10px;
+    box-shadow: 0px 0px 5px 2px #ccc;
+    border-radius: 45px;
+}
+
+
+.btn-list{
+    background-color: white;
+    border: none;
+    font-size: 25px;
+    padding: 0px 20px;
+}
+
+.input-search{
+    background-color: #fff;
+    border: none;
+    outline: none;
+}
+
+.btn-search{
+    border: none;
+    background: none;
+    padding: 0 25px;
+}
+
+.btn-way{
+    border: none;
+    background: none;
+    color: #0000ff94;
+    font-size: 20px;
+    display: flex;
+    text-align: center;
+    padding-right: 8px;
+}
+
+.btn-way i{
+    margin: auto;
+
+}

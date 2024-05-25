@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm Địa Điểm</title>
+</head>
+<body>
+    <h1>Thêm Địa Điểm Mới</h1>
+    <form action="{{ url_for('add_location') }}" method="post" enctype="multipart/form-data">
+        <label for="name">Tên:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="description">Mô Tả:</label><br>
+        <textarea id="description" name="description"></textarea><br>
+        <label for="latitude">Vĩ Độ:</label><br>
+        <input type="text" id="latitude" name="latitude"><br>
+        <label for="longitude">Kinh Độ:</label><br>
+        <input type="text" id="longitude" name="longitude"><br>
+        <label for="rating">Đánh Giá:</label><br>
+        <input type="number" id="rating" name="rating" min="1" max="5"><br>
+        <label for="category">Loại:</label><br>
+        <select id="category" name="category">
+            <option value="Historical">Lịch sử</option>
+            <option value="Natural">Thiên nhiên</option>
+            <option value="Cultural">Văn hóa</option>
+        </select><br><br>
+        <input type="submit" value="Thêm Địa Điểm">
+    </form>
+    <a href="{{ url_for('index') }}">Quay lại bản đồ</a>
+</body>
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gợi Ý Lộ Trình</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 600px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gợi Ý Lộ Trình</h1>
+    <form id="routeForm">
+        <label for="start">Chọn điểm xuất phát:</label>
+        <select id="start" name="start">
+            <option value="current_location">Vị trí hiện tại</option>
+        </select><br>
+        <label for="end">Chọn điểm đến:</label>
+        <select id="end" name="end">
+            <option value="current_location">Vị trí hiện tại</option>
+        </select><br>
+        <input type="submit" value="Gợi ý lộ trình">
+    </form>
+    <button id="locateUser">Xác định vị trí của tôi</button>
+    <div id="map"></div>
+    <a href="{{ url_for('index') }}">Quay lại bản đồ</a>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([21.0285, 105.8500], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        var currentLocationMarker = null;
+
+        fetch('/api/locations')
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(location => {
+                    var optionStart = document.createElement('option');
+                    optionStart.value = location.id;
+                    optionStart.textContent = location.name;
+                    document.getElementById('start').appendChild(optionStart);
+
+                    var optionEnd = document.createElement('option');
+                    optionEnd.value = location.id;
+                    optionEnd.textContent = location.name;
+                    document.getElementById('end').appendChild(optionEnd);
+                });
+            });
+
+        function locateUser(callback) {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+                    if (currentLocationMarker) {
+                        map.removeLayer(currentLocationMarker);
+                    }
+                    currentLocationMarker = L.marker([lat, lng]).addTo(map);
+                    currentLocationMarker.bindPopup("Bạn đang ở đây!").openPopup();
+                    map.setView([lat, lng], 15);
+                    callback(lat, lng);
+                }, function(error) {
+                    alert("Lỗi khi xác định vị trí: " + error.message);
+                });
+            } else {
+                alert("Trình duyệt của bạn không hỗ trợ định vị vị trí.");
+            }
+        }
+
+        document.getElementById('locateUser').addEventListener('click', function() {
+            locateUser((lat, lng) => {
+                document.getElementById('start').value = 'current_location';
+            });
+        });
+
+        document.getElementById('routeForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var startId = document.getElementById('start').value;
+            var endId = document.getElementById('end').value;
+
+            function fetchRoute(startLat, startLng, endLat, endLng) {
+                fetch(`/api/route_suggestions?start_lat=${startLat}&start_lng=${startLng}&end_lat=${endLat}&end_lng=${endLng}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        map.eachLayer(layer => {
+                            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                                map.removeLayer(layer);
+                            }
+                        });
+                        var latlngs = [];
+                        data.forEach(location => {
+                            var marker = L.marker([location.latitude, location.longitude]).addTo(map);
+                            marker.bindPopup(`<b>${location.name}</b><br>${location.description}<br><img src="${location.image_url}" width="100"><br>Rating: ${location.rating}`);
+                            latlngs.push([location.latitude, location.longitude]);
+                        });
+                        var polyline = L.polyline(latlngs, {color: 'blue'}).addTo(map);
+                        map.fitBounds(polyline.getBounds());
+                    });
+            }
+
+            if (startId === 'current_location') {
+                locateUser((startLat, startLng) => {
+                    if (endId === 'current_location') {
+                        locateUser((endLat, endLng) => {
+                            fetchRoute(startLat, startLng, endLat, endLng);
+                        });
+                    } else {
+                        fetch(`/api/location/${endId}`)
+                            .then(response => response.json())
+                            .then(data => {
+                                fetchRoute(startLat, startLng, data.latitude, data.longitude);
+                            });
+                    }
+                });
+            } else {
+                fetch(`/api/location/${startId}`)
+                    .then(response => response.json())
+                    .then(startData => {
+                        if (endId === 'current_location') {
+                            locateUser((endLat, endLng) => {
+                                fetchRoute(startData.latitude, startData.longitude, endLat, endLng);
+                            });
+                        } else {
+                            fetch(`/api/location/${endId}`)
+                                .then(response => response.json())
+                                .then(endData => {
+                                    fetchRoute(startData.latitude, startData.longitude, endData.latitude, endData.longitude);
+                                });
+                        }
+                    });
+            }
+        });
+    </script>
+</body>
+</html>
